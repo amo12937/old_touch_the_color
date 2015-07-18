@@ -1,6 +1,31 @@
 <html>
 <head>
 <style>
+.hint-container {
+  display: flex;
+  align-items: flex-end;
+}
+.hint-current {
+  float: left;
+  height: 60px;
+  width: 60px;
+  margin: 3px;
+  border-radius: 10px;
+}
+
+.hint-other-container {
+  display: flex;
+  flex-direction: row;
+  height: 40px;
+  width: 120px;
+}
+
+.hint-other {
+  flex: auto;
+  margin: 3px;
+  border-radius: 5px;
+} 
+
 .board {
   display: flex;
   flex-direction: column;
@@ -150,6 +175,26 @@ onLoad = (function() {
   var model = (function(n, m) {
     var itemContainer = itemContainerProvider(n, n);
     var hint = hintProvider(n, m);
+    var colors = [
+      "#ffcccc",
+      "#ccffcc",
+      "#ccccff",
+      "#ffffcc",
+      "#ffcc99",
+      "#ccffff",
+      "#99ccff",
+      "#ffccff",
+      "#ff99cc",
+      "#cc99ff",
+      "#cc6666",
+      "#66cc66",
+      "#6666cc",
+      "#123456",
+      "#654321",
+      "#cccccc",
+      "#999999",
+      "#666666",
+    ];
 
     var self = {
       "addItemContainerObserver": function(fn, thisArg) {
@@ -169,6 +214,9 @@ onLoad = (function() {
       "getHint": function() {
         return hint.get();
       },
+      "getColor": function(i) {
+        return colors[i];
+      },
     };
     return self;
   })(NUM_OF_ITEMS, NUM_OF_HINTS);
@@ -185,39 +233,46 @@ onLoad = (function() {
         return items[i];
       }
     };
-    return function(hintElm, itemElms) {
+    return function(hintElms, itemElms) {
       m.addHintObserver(function(sender, hints) {
-        hintElm.innerHTML = hints.map(hintMapper(m.getItemContainer())).toString();
+        var i, n, items = m.getItemContainer();
+        for (i = 0, n = hints.length; i < n; i++) {
+          hintElms[i].style.backgroundColor = m.getColor(items[hints[i]]);
+        }
       });
       m.addItemContainerObserver(function(sender, i, _old, _new) {
-        itemElms[i].innerHTML = _new;
+        itemElms[i].style.backgroundColor = m.getColor(_new);
       });
 
       var hints = m.getHint();
       var items = m.getItemContainer();
-      hintElm.innerHTML = hints.map(hintMapper(items)).toString();
 
       var i, n;
+      for (i = 0, n = hints.length; i < n; i++) {
+        hintElms[i].style.backgroundColor = m.getColor(items[hints[i]]);
+      }
       for (i = 0, n = items.length; i < n; i++) {
-        itemElms[i].innerHTML = items[i];
+        itemElms[i].style.backgroundColor = m.getColor(items[i]);
       }
     };
   })(model);
 
   var onLoad = function(d) {
-    var hintElm = d.getElementById("hints");
-    var i = 0, itemElms = [];
+    var i = 0, hintElms = [], itemElms = [];
+    for (i = 0; i < NUM_OF_HINTS; i++) {
+      var elm = d.getElementById("hint" + i);
+      hintElms.push(elm);
+    }
     for (i = 0; i < NUM_OF_ITEMS; i++) {
       var elm = d.getElementById("item" + i);
-      var innerElm = d.getElementById("inner" + i);
       elm.onclick = (function(j) {
         return function() {
           controller(j);
         };
       })(i);
-      itemElms.push(innerElm);
+      itemElms.push(elm);
     }
-    view(hintElm, itemElms);
+    view(hintElms, itemElms);
   };
 
   return onLoad
@@ -226,7 +281,14 @@ onLoad = (function() {
 </script>
 </head>
 <body onload="onLoad(document)">
-<div id="hints"></div>
+<div class="hint-container">
+  <div class="hint-current" id="hint0"></div>
+  <div class="hint-other-container">
+    <div class="hint-other" id="hint1"></div>
+    <div class="hint-other" id="hint2"></div>
+    <div class="hint-other" id="hint3"></div>
+  </div>
+</div>
 <br>
 <div class="board">
   <div class="row">
