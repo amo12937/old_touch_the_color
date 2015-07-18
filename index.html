@@ -22,9 +22,10 @@
 }
 </style>
 <script>
-model = (function(){
-  var ITEMS = 9;
-  var HINTS = 4;
+onLoad = (function() {
+  var NUM_OF_ITEMS = 9;
+  var NUM_OF_HINTS = 4;
+
   var r = function(n) {
     return Math.floor(Math.random() * n);
   };
@@ -37,12 +38,26 @@ model = (function(){
       return s + 1;
   }
 
+  var shuffle = function(l) {
+    var i, j, n, tmp;
+    for (i = 0, n = l.length; i < n; i++) {
+      j = r(n);
+      tmp = l[j];
+      l[j] = l[i];
+      l[i] = tmp;
+    }
+    return l;
+  };
+ 
   var observee = function() {
     var i = 0;
     var listeners = {}
     return {
-      "addObserver": function (fn) {
-        listeners[i] = fn;
+      "addObserver": function (fn, thisArg) {
+        listeners[i] = {
+          "fn": fn,
+          "thisArg": thisArg,
+        }
         var del = (function(j) {
           return function() {
             delete listeners[j];
@@ -51,64 +66,150 @@ model = (function(){
         i += 1;
         return del;
       },
-      "notify": function(x) {
+      "notify": function() {
         for (i in listeners) {
-          listeners[i](x);
+          listeners[i].fn.apply(listeners[i].thisArg, arguments);
         }
       }
     };
   };
 
-  var f = function(n, m) {
+  var hintProvider = function(n, m) {
     var s = [r(n)];
     var i = 0;
     for (i = 1; i < m; i++) {
-      s[i] = other(n, s[i-1]);
+      s[i] = other(n, s[i - 1]);
     }
+
     var o = observee();
 
-    self = {
-      "addObserver": function (fn) {
-        o.addObserver(fn);
+    var self = {
+      "addObserver": function(fn, thisArg) {
+        return o.addObserver(fn, thisArg);
       },
-      "shift": function(j) {
-        if (s[0] !== j) {
-          return;
-        }
+      "try": function(j) {
+        return s[0] === j;
+      },
+      "shift": function() {
         s.push(other(n, s[m-1]));
         s.shift();
-        o.notify(self.get());
+        o.notify(self, self.get());
       },
       "get": function() {
         return s.slice(0);
       },
     };
+
     return self;
-  }
-
-  return f(ITEMS, HINTS);
-})()
-
-controller = (function(m) {
-  return function(j) {
-    m.shift(j);
   };
-})(model);
 
-view = (function(m) {
-  var add1 = function(n) { return n + 1; };
-  return function (elm) {
-    m.addObserver(function(s) {
-      elm.innerHTML = s.map(add1).toString();
-    });
-    elm.innerHTML = m.get().map(add1).toString();
+  var itemContainerProvider = function(n, m) {
+    var i, l = [];
+    for (i = 0; i < n + m; i++) {
+      l.push(i);
+    }
+    l = shuffle(l);
+
+    var itemContainer = l.slice(0, n); /* 表示されているアイテムの一覧 */
+    var itemPool = l.slice(-m); /* 次に出現する値の候補 */
+    var o = observee();
+
+    var self = {
+      "addObserver": function(fn, thisArg) {
+        return o.addObserver(fn, thisArg);
+      },
+      "select": function(j) {
+        /* select されると、値が変わる */
+        if (j < 0 || n <= j) return;
+        var k = r(m);
+        var newItem = itemPool[k];
+        itemPool[k] = itemContainer[j];
+        itemContainer[j] = newItem;
+        o.notify(self, j, itemPool[k] /* oldItem */, newItem)
+        return newItem;
+      },
+      "get": function() {
+        return itemContainer.slice(0);
+      },
+    };
+
+    return self;
   };
-})(model);
 
-onLoad = function(d) {
-  var hintElm = d.getElementById("hints");
-  view(hintElm);
-};
+  var model = (function(n, m) {
+    var itemContainer = itemContainerProvider(n, n);
+    var hint = hintProvider(n, m);
+
+    var self = {
+      "addItemContainerObserver": function(fn, thisArg) {
+        return itemContainer.addObserver(fn, thisArg);
+      },
+      "addHintObserver": function(fn, thisArg) {
+        return hint.addObserver(fn, thisArg);
+      },
+      "select": function(i) {
+        if (!hint.try(i)) return;
+        itemContainer.select(i);
+        hint.shift();
+      },
+      "getItemContainer": function() {
+        return itemContainer.get();
+      },
+      "getHint": function() {
+        return hint.get();
+      },
+    };
+    return self;
+  })(NUM_OF_ITEMS, NUM_OF_HINTS);
+
+  var controller = (function(m) {
+    return function(i) {
+      m.select(i);
+    };
+  })(model);
+
+  var view = (function(m) {
+    var hintMapper = function(items) {
+      return function(i) {
+        return items[i];
+      }
+    };
+    return function(hintElm, itemElms) {
+      m.addHintObserver(function(sender, hints) {
+        hintElm.innerHTML = hints.map(hintMapper(m.getItemContainer())).toString();
+      });
+      m.addItemContainerObserver(function(sender, i, _old, _new) {
+        itemElms[i].innerHTML = _new;
+      });
+
+      var hints = m.getHint();
+      var items = m.getItemContainer();
+      hintElm.innerHTML = hints.map(hintMapper(items)).toString();
+
+      var i, n;
+      for (i = 0, n = items.length; i < n; i++) {
+        itemElms[i].innerHTML = items[i];
+      }
+    };
+  })(model);
+
+  var onLoad = function(d) {
+    var hintElm = d.getElementById("hints");
+    var i = 0, itemElms = [];
+    for (i = 0; i < NUM_OF_ITEMS; i++) {
+      var elm = d.getElementById("item" + i);
+      elm.onclick = (function(j) {
+        return function() {
+          controller(j);
+        };
+      })(i);
+      itemElms.push(elm);
+    }
+    view(hintElm, itemElms);
+  };
+
+  return onLoad
+})();
 
 </script>
 </head>
@@ -117,19 +218,19 @@ onLoad = function(d) {
 <br>
 <div class="board">
   <div class="row">
-    <div class="item" onclick="controller(0)">1</div>
-    <div class="item" onclick="controller(1)">2</div>
-    <div class="item" onclick="controller(2)">3</div>
+    <div class="item" id="item0"></div>
+    <div class="item" id="item1"></div>
+    <div class="item" id="item2"></div>
   </div>
   <div class="row">
-    <div class="item" onclick="controller(3)">4</div>
-    <div class="item" onclick="controller(4)">5</div>
-    <div class="item" onclick="controller(5)">6</div>
+    <div class="item" id="item3"></div>
+    <div class="item" id="item4"></div>
+    <div class="item" id="item5"></div>
   </div>
   <div class="row">
-    <div class="item" onclick="controller(6)">7</div>
-    <div class="item" onclick="controller(7)">8</div>
-    <div class="item" onclick="controller(8)">9</div>
+    <div class="item" id="item6"></div>
+    <div class="item" id="item7"></div>
+    <div class="item" id="item8"></div>
   </div>
 </div>
 </body>
