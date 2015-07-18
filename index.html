@@ -15,11 +15,20 @@
 }
 
 .item {
+  display: flex;
   flex: auto;
+  flex-basis: 100%;
   margin: 3px;
   border-radius: 10px;
   background-color: #ffcccc;
+  align-items: center;
 }
+
+.inner {
+  flex: auto;
+  text-align: center;
+}
+
 </style>
 <script>
 onLoad = (function() {
@@ -200,12 +209,13 @@ onLoad = (function() {
     var i = 0, itemElms = [];
     for (i = 0; i < NUM_OF_ITEMS; i++) {
       var elm = d.getElementById("item" + i);
+      var innerElm = d.getElementById("inner" + i);
       elm.onclick = (function(j) {
         return function() {
           controller(j);
         };
       })(i);
-      itemElms.push(elm);
+      itemElms.push(innerElm);
     }
     view(hintElm, itemElms);
   };
@@ -220,19 +230,19 @@ onLoad = (function() {
 <br>
 <div class="board">
   <div class="row">
-    <div class="item" id="item0"></div>
-    <div class="item" id="item1"></div>
-    <div class="item" id="item2"></div>
+    <div class="item" id="item0" accesskey="7"><div class="inner" id="inner0"></div></div>
+    <div class="item" id="item1" accesskey="8"><div class="inner" id="inner1"></div></div>
+    <div class="item" id="item2" accesskey="9"><div class="inner" id="inner2"></div></div>
   </div>
   <div class="row">
-    <div class="item" id="item3"></div>
-    <div class="item" id="item4"></div>
-    <div class="item" id="item5"></div>
+    <div class="item" id="item3" accesskey="u"><div class="inner" id="inner3"></div></div>
+    <div class="item" id="item4" accesskey="i"><div class="inner" id="inner4"></div></div>
+    <div class="item" id="item5" accesskey="o"><div class="inner" id="inner5"></div></div>
   </div>
   <div class="row">
-    <div class="item" id="item6"></div>
-    <div class="item" id="item7"></div>
-    <div class="item" id="item8"></div>
+    <div class="item" id="item6" accesskey="j"><div class="inner" id="inner6"></div></div>
+    <div class="item" id="item7" accesskey="k"><div class="inner" id="inner7"></div></div>
+    <div class="item" id="item8" accesskey="l"><div class="inner" id="inner8"></div></div>
   </div>
 </div>
 </body>
