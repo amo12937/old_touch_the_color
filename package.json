@@ -15,5 +15,9 @@
   "bugs": {
     "url": "https://github.com/amo12937/touch_the_color/issues"
   },
-  "homepage": "https://github.com/amo12937/touch_the_color#readme"
+  "homepage": "https://github.com/amo12937/touch_the_color#readme",
+  "devDependencies": {
+    "coffee-script": "^1.9.3",
+    "gulp": "^3.9.0"
+  }
 }
