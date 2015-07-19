@@ -206,7 +206,9 @@ onLoad = (function() {
     };
   })(model);
 
-  var onLoad = function(d) {
+  var onLoad = function(w, d) {
+    var touchable = w.ontouchstart !== undefined;
+
     var i = 0, hintElms = [], itemElms = [];
     for (i = 0; i < NUM_OF_HINTS; i++) {
       var elm = d.getElementById("hint" + i);
@@ -214,7 +216,7 @@ onLoad = (function() {
     }
     for (i = 0; i < NUM_OF_ITEMS; i++) {
       var elm = d.getElementById("item" + i);
-      elm.onclick = (function(j) {
+      elm[touchable ? "ontouchstart" : "onclick"] = (function(j) {
         return function() {
           controller(j);
         };
@@ -229,7 +231,7 @@ onLoad = (function() {
 
 </script>
 </head>
-<body onload="onLoad(document)">
+<body onload="onLoad(window, document)">
 <div class="hint-container">
   <div class="hint-current" id="hint0"></div>
   <div class="hint-other-container">
