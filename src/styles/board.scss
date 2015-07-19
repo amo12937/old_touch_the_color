@@ -1,0 +1,41 @@
+@import "constant.scss";
+
+$board-width:  600px;
+$board-height: 600px;
+$margin:        10px;
+$corner-radius: 16px;
+
+@mixin game-board($w, $h, $m, $r) {
+  .board {
+    display: flex;
+    flex-direction: column;
+    width: $w;
+    height: $h;
+  }
+
+  .board-row {
+    display: flex;
+    flex-direction: row;
+    flex: auto;
+  }
+
+  .board-item {
+    display: flex;
+    flex: auto;
+    flex-basis: 100%;
+    margin: $m;
+    border-radius: $r;
+    align-items: center;
+  }
+
+  .board-inner {
+    flex: auto;
+    text-align: center;
+  }
+}
+
+@include game-board($board-width, $board-height, $margin, $corner-radius);
+@media screen and (max-width: $mobile-threshold) {
+  @include game-board($board-width/2, $board-height/2, $margin/2, $corner-radius/2);
+}
+

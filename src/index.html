@@ -3,61 +3,7 @@
 <title>touch the color</title>
 <meta content='text/html: charset=UTF-8' http-equiv='Content-Type'>
 <meta content='width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no' name='viewport'>
-<style>
-.hint-container {
-  display: flex;
-  align-items: flex-end;
-}
-.hint-current {
-  float: left;
-  height: 60px;
-  width: 60px;
-  margin: 3px;
-  border-radius: 10px;
-}
-
-.hint-other-container {
-  display: flex;
-  flex-direction: row;
-  height: 40px;
-  width: 120px;
-}
-
-.hint-other {
-  flex: auto;
-  margin: 3px;
-  border-radius: 5px;
-} 
-
-.board {
-  display: flex;
-  flex-direction: column;
-  height: 360px;
-  width: 360px;
-}
-
-.row {
-  display: flex;
-  flex-direction: row;
-  flex: auto;
-}
-
-.item {
-  display: flex;
-  flex: auto;
-  flex-basis: 100%;
-  margin: 3px;
-  border-radius: 10px;
-  background-color: #ffcccc;
-  align-items: center;
-}
-
-.inner {
-  flex: auto;
-  text-align: center;
-}
-
-</style>
+<link href="styles/main.css" rel="stylesheet" />
 <script>
 onLoad = (function() {
   var NUM_OF_ITEMS = 9;
@@ -294,20 +240,20 @@ onLoad = (function() {
 </div>
 <br>
 <div class="board">
-  <div class="row">
-    <div class="item" id="item0" accesskey="7"><div class="inner" id="inner0"></div></div>
-    <div class="item" id="item1" accesskey="8"><div class="inner" id="inner1"></div></div>
-    <div class="item" id="item2" accesskey="9"><div class="inner" id="inner2"></div></div>
+  <div class="board-row">
+    <div class="board-item" id="item0" accesskey="7"><div class="board-inner" id="inner0"></div></div>
+    <div class="board-item" id="item1" accesskey="8"><div class="board-inner" id="inner1"></div></div>
+    <div class="board-item" id="item2" accesskey="9"><div class="board-inner" id="inner2"></div></div>
   </div>
-  <div class="row">
-    <div class="item" id="item3" accesskey="u"><div class="inner" id="inner3"></div></div>
-    <div class="item" id="item4" accesskey="i"><div class="inner" id="inner4"></div></div>
-    <div class="item" id="item5" accesskey="o"><div class="inner" id="inner5"></div></div>
+  <div class="board-row">
+    <div class="board-item" id="item3" accesskey="u"><div class="board-inner" id="inner3"></div></div>
+    <div class="board-item" id="item4" accesskey="i"><div class="board-inner" id="inner4"></div></div>
+    <div class="board-item" id="item5" accesskey="o"><div class="board-inner" id="inner5"></div></div>
   </div>
-  <div class="row">
-    <div class="item" id="item6" accesskey="j"><div class="inner" id="inner6"></div></div>
-    <div class="item" id="item7" accesskey="k"><div class="inner" id="inner7"></div></div>
-    <div class="item" id="item8" accesskey="l"><div class="inner" id="inner8"></div></div>
+  <div class="board-row">
+    <div class="board-item" id="item6" accesskey="j"><div class="board-inner" id="inner6"></div></div>
+    <div class="board-item" id="item7" accesskey="k"><div class="board-inner" id="inner7"></div></div>
+    <div class="board-item" id="item8" accesskey="l"><div class="board-inner" id="inner8"></div></div>
   </div>
 </div>
 </body>

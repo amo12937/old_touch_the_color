@@ -1,0 +1,42 @@
+@import "constant.scss";
+
+$hint-current-size: 120px;
+$hint-other-size:   80px;
+$num-of-hints:         4;
+$hint-other-container-width: $hint-other-size * ($num-of-hints - 1);
+$corner-radius:      10px;
+$margin:             6px;
+
+@mixin hint($c, $ow, $oh, $m, $r) {
+  .hint-container {
+    display: flex;
+    align-items: flex-end;
+  }
+
+  .hint-current {
+    float: left;
+    width: $c;
+    height: $c;
+    margin: $m;
+    border-radius: $r;
+  }
+
+  .hint-other-container {
+    display: flex;
+    flex-direction: row;
+    width: $ow;
+    height: $oh;
+  }
+
+  .hint-other {
+    flex: auto;
+    margin: $m;
+    border-radius: $r;
+  }
+}
+
+@include hint($hint-current-size, $hint-other-container-width, $hint-other-size, $margin, $corner-radius);
+@media screen and (max-width: $mobile-threshold) {
+  @include hint($hint-current-size/2, $hint-other-container-width/2, $hint-other-size/2, $margin/2, $corner-radius/2);
+}
+
