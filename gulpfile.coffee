@@ -19,6 +19,18 @@ do (gulp = require "gulp") ->
       .pipe gulp.dest path.dev "styles/"
     return
 
+  # style document
+  do (
+    styledocco = require "gulp-styledocco"
+  ) ->
+    gulp.task "styleguide", ->
+      gulp.src path.src "styles/**/*.scss"
+      .pipe(styledocco
+        out: path.docs "styles"
+        name: "styleguide"
+        preprocessor: "sass"
+      )
+
   # html
   do () ->
     gulp.task "htmls", ->
