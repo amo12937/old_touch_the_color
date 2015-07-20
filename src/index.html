@@ -13,14 +13,6 @@ onLoad = (function() {
     return Math.floor(Math.random() * n);
   };
 
-  var other = function(n, k) {
-    var s = r(n - 1);
-    if (s < k)
-      return s;
-    else
-      return s + 1;
-  }
-
   var shuffle = function(l) {
     var i, j, n, tmp;
     for (i = 0, n = l.length; i < n; i++) {
