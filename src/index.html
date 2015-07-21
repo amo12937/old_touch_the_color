@@ -177,12 +177,24 @@ onLoad = (function() {
         return items[i];
       }
     };
-    return function(hintElms, itemElms) {
+    return function(hintDummy, hintElms, itemElms) {
       defaultNotificationCenter.addObserver(notificationKeys.HINT_SHIFTED, function(hints) {
         var i, n, items = m.getItemContainer();
+        var clsPrefix = "animation-hint-";
+        var clsNames = ["other-to-current", "other", "other", "new"];
+        hintDummy.classList.remove(clsPrefix + "current");
         for (i = 0, n = hints.length; i < n; i++) {
-          hintElms[i].style.backgroundColor = m.getColor(items[hints[i]]);
+          hintElms[i].classList.remove(clsPrefix + clsNames[i]);
         }
+        setTimeout(function() {
+          var j, nn;
+          hintDummy.style.backgroundColor = hintElms[0].style.backgroundColor;
+          hintDummy.classList.add(clsPrefix + "current");
+          for (j = 0, nn = hints.length; j < nn; j++) {
+            hintElms[j].style.backgroundColor = m.getColor(items[hints[j]]);
+            hintElms[j].classList.add(clsPrefix + clsNames[j]);
+          }
+        });
       });
 
       defaultNotificationCenter.addObserver(notificationKeys.SELECT_SUCCESS, function(i, _old, _new) {
@@ -222,11 +234,10 @@ onLoad = (function() {
   var onLoad = function(w, d) {
     var touchable = w.ontouchstart !== undefined;
 
-    var i = 0, hintElms = [], itemElms = [];
-    for (i = 0; i < NUM_OF_HINTS; i++) {
-      var elm = d.getElementById("hint" + i);
-      hintElms.push(elm);
-    }
+    var hintContainer = d.querySelector(".hint-container");
+    var hintDummy = hintContainer.children[0];
+    var hintElms = [].slice.call(hintContainer.children, 1);
+    var i = 0, itemElms = [];
     for (i = 0; i < NUM_OF_ITEMS; i++) {
       var elm = d.getElementById("cell" + i);
       elm[touchable ? "ontouchstart" : "onclick"] = (function(j) {
@@ -236,7 +247,7 @@ onLoad = (function() {
       })(i);
       itemElms.push(elm);
     }
-    view(hintElms, itemElms);
+    view(hintDummy, hintElms, itemElms);
   };
 
   return onLoad
@@ -246,12 +257,11 @@ onLoad = (function() {
 </head>
 <body onload="onLoad(window, document)">
 <div class="hint-container">
-  <div class="hint-current" id="hint0"></div>
-  <div class="hint-other-container">
-    <div class="hint-other" id="hint1"></div>
-    <div class="hint-other" id="hint2"></div>
-    <div class="hint-other" id="hint3"></div>
-  </div>
+  <div class="hint-dummy"></div>
+  <div class="hint-current"></div>
+  <div class="hint-other"></div>
+  <div class="hint-other"></div>
+  <div class="hint-other"></div>
 </div>
 <br>
 <div class="board">
