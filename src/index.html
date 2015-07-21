@@ -24,7 +24,7 @@ onLoad = (function() {
     return l;
   };
 
-  containerAndPoolProvider = function(n, m) {
+  var containerAndPoolProvider = function(n, m) {
     var i, l = [];
     for (i = 0; i < n + m; i++) {
       l.push(i);
@@ -35,36 +35,43 @@ onLoad = (function() {
       "pool": l.slice(-m),
     };
   };
- 
-  var observee = function() {
+
+  var notificationCenterProvider = function() {
     var i = 0;
     var listeners = {}
     return {
-      "addObserver": function (fn, thisArg) {
-        listeners[i] = {
+      "addObserver": function (e, fn, thisArg) {
+        listeners[e] = listeners[e] || {};
+        listeners[e][i] = {
           "fn": fn,
           "thisArg": thisArg,
         }
         var del = (function(j) {
           return function() {
-            delete listeners[j];
+            delete listeners[e][j];
           }
         })(i);
         i += 1;
         return del;
       },
-      "notify": function() {
-        for (i in listeners) {
-          listeners[i].fn.apply(listeners[i].thisArg, arguments);
+      "notify": function(e) {
+        var args = [].slice.call(arguments, 1);
+        for (i in listeners[e]) {
+          listeners[e][i].fn.apply(listeners[e][i].thisArg, args);
         }
       }
     };
   };
+  var defaultNotificationCenter = notificationCenterProvider();
+
+  var notificationKeys = {
+    "HINT_SHIFTED": "HINT_SHIFTED",
+    "SELECT_SUCCESS": "SELECT_SUCCESS",
+    "SELECT_FAIL": "SELECT_FAIL",
+  };
 
   var hintProvider = function(n, m) {
     var cp = containerAndPoolProvider(m, n - m);
-
-    var o = observee();
 
     var self = {
       "addObserver": function(fn, thisArg) {
@@ -77,7 +84,7 @@ onLoad = (function() {
         var i = r(n - m);
         cp.container.push(cp.pool[i]);
         cp.pool[i] = cp.container.shift();
-        o.notify(self, self.get());
+        defaultNotificationCenter.notify(notificationKeys.HINT_SHIFTED, self.get());
       },
       "get": function() {
         return cp.container.slice(0);
@@ -89,7 +96,6 @@ onLoad = (function() {
 
   var itemContainerProvider = function(n, m) {
     var cp = containerAndPoolProvider(n, m);
-    var o = observee();
 
     var self = {
       "addObserver": function(fn, thisArg) {
@@ -102,7 +108,7 @@ onLoad = (function() {
         var newItem = cp.pool[k];
         cp.pool[k] = cp.container[j];
         cp.container[j] = newItem;
-        o.notify(self, j, cp.pool[k] /* oldItem */, newItem)
+        defaultNotificationCenter.notify(notificationKeys.SELECT_SUCCESS, j, cp.pool[k] /* oldItem */, newItem)
         return newItem;
       },
       "get": function() {
@@ -138,14 +144,11 @@ onLoad = (function() {
     ];
 
     var self = {
-      "addItemContainerObserver": function(fn, thisArg) {
-        return itemContainer.addObserver(fn, thisArg);
-      },
-      "addHintObserver": function(fn, thisArg) {
-        return hint.addObserver(fn, thisArg);
-      },
       "select": function(i) {
-        if (!hint.try(i)) return;
+        if (!hint.try(i)) {
+          defaultNotificationCenter.notify(notificationKeys.SELECT_FAIL, i);
+          return;
+        }
         itemContainer.select(i);
         hint.shift();
       },
@@ -175,13 +178,14 @@ onLoad = (function() {
       }
     };
     return function(hintElms, itemElms) {
-      m.addHintObserver(function(sender, hints) {
+      defaultNotificationCenter.addObserver(notificationKeys.HINT_SHIFTED, function(hints) {
         var i, n, items = m.getItemContainer();
         for (i = 0, n = hints.length; i < n; i++) {
           hintElms[i].style.backgroundColor = m.getColor(items[hints[i]]);
         }
       });
-      m.addItemContainerObserver(function(sender, i, _old, _new) {
+
+      defaultNotificationCenter.addObserver(notificationKeys.SELECT_SUCCESS, function(i, _old, _new) {
         var newElm = itemElms[i].children[0];
         var oldElm = itemElms[i].children[1];
         var clsName = "animation-success";
@@ -192,6 +196,10 @@ onLoad = (function() {
         setTimeout(function() {
           oldElm.classList.add(clsName);
         });
+      });
+
+      defaultNotificationCenter.addObserver(notificationKeys.SELECT_FAIL, function(i) {
+        console.log(notificationKeys.SELECT_FAIL + ": " + i);
       });
 
       var hints = m.getHint();
