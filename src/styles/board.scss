@@ -1,3 +1,32 @@
+/*
+# board
+
+```
+<div class="board">
+  <div class="board-row">
+    <div class="board-cell" style="background-color:#ffcccc">
+      <div class="board-item" style="background-color:#ccccff"><div class="board-inner">12</div></div>
+      <div class="board-item" style="background-color:#ccffcc" onclick="(function(e){e.classList.add('animation-success');})(this)"><div class="board-inner">17</div></div>
+    </div>
+    <div class="board-cell" style="background-color:#ffcccc"><div class="board-item"></div></div>
+    <div class="board-cell" style="background-color:#ffcccc"><div class="board-item"></div></div>
+  </div>
+  <div class="board-row">
+    <div class="board-cell" style="background-color:#ffcccc"><div class="board-item"></div></div>
+    <div class="board-cell" style="background-color:#ffcccc" onclick="(function(e){ var r = function(n) { return Math.floor(Math.random() * n); }; var s = e.children[0]; var t = e.children[1]; t.classList.remove('animation-success'); t.style.backgroundColor=s.style.backgroundColor; t.innerHTML = s.innerHTML; t.style.opacity = 1; s.style.backgroundColor='#'+r(1000000); s.children[0].textContent=r(18); setTimeout(function(){t.classList.add('animation-success');}); })(this)">
+      <div class="board-item" style="background-color:#ccccff"><div class="board-inner">12</div></div>
+      <div class="board-item" style="opacity:0;"><div class="board-inner">13</div></div>
+    </div>
+    <div class="board-cell" style="background-color:#ffcccc"><div class="board-item"></div></div>
+  </div>
+  <div class="board-row">
+    <div class="board-cell" style="background-color:#ffcccc"><div class="board-item"></div></div>
+    <div class="board-cell" style="background-color:#ffcccc"><div class="board-item"></div></div>
+    <div class="board-cell" style="background-color:#ffcccc"><div class="board-item"></div></div>
+  </div>
+</div>
+```
+ */
 @import "constant.scss";
 
 $board-width:  600px;
@@ -19,18 +48,31 @@ $corner-radius: 16px;
     flex: auto;
   }
 
-  .board-item {
+  .board-cell {
+    position: relative;
     display: flex;
-    flex: auto;
+    flex:auto;
     flex-basis: 100%;
     margin: $m;
     border-radius: $r;
+  }
+
+  .board-item {
+    position: absolute;
+    left: 0%;
+    display: flex;
+    flex: auto;
+    flex-basis: 100%;
+    border-radius: $r;
     align-items: center;
+    width: 100%;
+    height: 100%;
   }
 
   .board-inner {
     flex: auto;
     text-align: center;
+    font-size: 40px;
   }
 }
 
