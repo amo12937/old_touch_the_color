@@ -52,7 +52,7 @@
 
 @keyframes animation-success {
   100% {
-    transform: scale(1.2);
+    transform: rotate(-90deg) scale(0.5);
     opacity: 0;
   }
 }

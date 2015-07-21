@@ -199,7 +199,11 @@ onLoad = (function() {
       });
 
       defaultNotificationCenter.addObserver(notificationKeys.SELECT_FAIL, function(i) {
-        console.log(notificationKeys.SELECT_FAIL + ": " + i);
+        var clsName = "animation-fail";
+        itemElms[i].classList.remove(clsName);
+        setTimeout(function() {
+          itemElms[i].classList.add(clsName);
+        });
       });
 
       var hints = m.getHint();
