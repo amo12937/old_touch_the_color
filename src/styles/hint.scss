@@ -33,6 +33,10 @@ $margin:             6px;
     position: absolute;
     bottom: 0px;
     left: 0px;
+    width: $c;
+    height: $c;
+    margin: $m;
+    border-radius: $r;
     opacity: 0;
   }
 
@@ -54,7 +58,12 @@ $margin:             6px;
   ## animation-hint-current
   
   ```
-  <div style="width:100px; height:100px; border-radius:10px; background-color:#ffcccc;" onclick="(function(e,c) { e.classList.add(c); setTimeout(function(){e.classList.remove(c)}, 1000); })(this, 'animation-hint-current')"></div>
+<div class="hint-container">
+  <div class="hint-current" style="background-color:#ccccff;" onclick="(function(e, c) { e.classList.add(c); setTimeout(function() { e.classList.remove(c); }, 1000); })(this, 'animation-hint-current')"></div>
+  <div class="hint-other" style="background-color:#ffcccc;"></div>
+  <div class="hint-other" style="background-color:#ffcccc;"></div>
+  <div class="hint-other" style="background-color:#ffcccc;"></div>
+</div>
   ```
  */
   
@@ -105,6 +114,79 @@ $margin:             6px;
       transform: translate(0, 0) scale(1);
     }
   }
+
+/*
+## animation-hint-other
+
+```
+<div class="hint-container">
+  <div class="hint-current" style="background-color:#ffcccc;"></div>
+  <div class="hint-other" id="hint-other1" style="background-color:#ccffcc;" onclick="(function(e1, e2, c) { e1.classList.add(c); e2.classList.add(c); setTimeout(function() { e1.classList.remove(c); e2.classList.remove(c); }, 1000); })(document.getElementById('hint-other1'), document.getElementById('hint-other2'), 'animation-hint-other')"></div>
+  <div class="hint-other" id="hint-other2" style="background-color:#ccccff;" onclick="(function(e1, e2, c) { e1.classList.add(c); e2.classList.add(c); setTimeout(function() { e1.classList.remove(c); e2.classList.remove(c); }, 1000); })(document.getElementById('hint-other1'), document.getElementById('hint-other2'), 'animation-hint-other')"></div>
+  <div class="hint-other" style="background-color:#ffcccc;"></div>
+</div>
+```
+*/
+  .animation-hint-other {
+    animation-name: animation-hint-other;
+    animation-duration: 0.5s;
+    animation-timing-function: ease;
+    animation-iteration-count: 1;
+    animation-fill-mode: forwards;
+  }
+  @keyframes animation-hint-other {
+    0% {
+      transform: translate($o + 2*$m, 0);
+    }
+    100% {
+      transform: translate(0, 0);
+    }
+  }
+
+/*
+## animation-hint-new
+
+```
+<div class="hint-container">
+  <div class="hint-current" style="background-color:#ffcccc;"></div>
+  <div class="hint-other" style="background-color:#ffcccc;"></div>
+  <div class="hint-other" style="background-color:#ffcccc;"></div>
+  <div class="hint-other" style="background-color:#ccccff;" onclick="(function(e, c) { e.classList.add(c); setTimeout(function() { e.classList.remove(c); }, 1000); })(this, 'animation-hint-new')"></div>
+</div>
+```
+ */
+  .animation-hint-new {
+    animation-name: animation-hint-new;
+    animation-duration: 0.5s;
+    animation-timing-function: ease;
+    animation-iteration-count: 1;
+    animation-fill-mode: forwards;
+  }
+  @keyframes animation-hint-new {
+    0% {
+      transform: scale(0.5);
+      opacity: 0;
+    }
+    100% {
+      transform: scale(1.0);
+      opacity: 1;
+    }
+  }
+
+/*
+## simultaneously
+
+```
+<div class="hint-container" id="sim">
+  <div class="hint-dummy" id="sim0" style="background-color:#ffccff"></div>
+  <div class="hint-current" id="sim1" style="background-color:#ffcccc;"></div>
+  <div class="hint-other" id="sim2" style="background-color:#ccffcc;"></div>
+  <div class="hint-other" id="sim3" style="background-color:#ccccff;"></div>
+  <div class="hint-other" id="sim4" style="background-color:#ffcc99;"></div>
+</div>
+<button onclick="(function(d){var s=d.getElementById('sim').children;var p='animation-hint-';var c=['current','other-to-current','other','other','new'];var tmp=s[0].style.backgroundColor;var i;for(i=0;i<4;i++){s[i].style.backgroundColor=s[i+1].style.backgroundColor;s[i].classList.add(p+c[i]);}s[4].style.backgroundColor=tmp;s[4].classList.add(p+c[4]);setTimeout(function(){for(var j=0;j<5;j++){s[j].classList.remove(p+c[j]);}},1000);})(document)">start</button>
+```
+ */
 }
 
 @include hint($hint-current-size, $hint-other-size, $margin, $corner-radius, $hint-current-scale);
