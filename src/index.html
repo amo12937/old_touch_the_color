@@ -182,7 +182,16 @@ onLoad = (function() {
         }
       });
       m.addItemContainerObserver(function(sender, i, _old, _new) {
-        itemElms[i].style.backgroundColor = m.getColor(_new);
+        var newElm = itemElms[i].children[0];
+        var oldElm = itemElms[i].children[1];
+        var clsName = "animation-success";
+        newElm.style.backgroundColor = m.getColor(_new);
+        oldElm.style.backgroundColor = m.getColor(_old);
+        oldElm.style.opacity = 1;
+        oldElm.classList.remove(clsName);
+        setTimeout(function() {
+          oldElm.classList.add(clsName);
+        });
       });
 
       var hints = m.getHint();
@@ -207,7 +216,7 @@ onLoad = (function() {
       hintElms.push(elm);
     }
     for (i = 0; i < NUM_OF_ITEMS; i++) {
-      var elm = d.getElementById("item" + i);
+      var elm = d.getElementById("cell" + i);
       elm[touchable ? "ontouchstart" : "onclick"] = (function(j) {
         return function() {
           controller(j);
@@ -235,19 +244,46 @@ onLoad = (function() {
 <br>
 <div class="board">
   <div class="board-row">
-    <div class="board-item" id="item0" accesskey="7"><div class="board-inner" id="inner0"></div></div>
-    <div class="board-item" id="item1" accesskey="8"><div class="board-inner" id="inner1"></div></div>
-    <div class="board-item" id="item2" accesskey="9"><div class="board-inner" id="inner2"></div></div>
+    <div class="board-cell" id="cell0">
+      <div class="board-item"><div class="board-inner"></div></div>
+      <div class="board-item board-item-old"><div class="board-inner"></div></div>
+    </div>
+    <div class="board-cell" id="cell1">
+      <div class="board-item"><div class="board-inner"></div></div>
+      <div class="board-item board-item-old"><div class="board-inner"></div></div>
+    </div>
+    <div class="board-cell" id="cell2">
+      <div class="board-item"><div class="board-inner"></div></div>
+      <div class="board-item board-item-old"><div class="board-inner"></div></div>
+    </div>
   </div>
   <div class="board-row">
-    <div class="board-item" id="item3" accesskey="u"><div class="board-inner" id="inner3"></div></div>
-    <div class="board-item" id="item4" accesskey="i"><div class="board-inner" id="inner4"></div></div>
-    <div class="board-item" id="item5" accesskey="o"><div class="board-inner" id="inner5"></div></div>
+    <div class="board-cell" id="cell3">
+      <div class="board-item"><div class="board-inner"></div></div>
+      <div class="board-item board-item-old"><div class="board-inner"></div></div>
+    </div>
+    <div class="board-cell" id="cell4">
+      <div class="board-item"><div class="board-inner"></div></div>
+      <div class="board-item board-item-old"><div class="board-inner"></div></div>
+    </div>
+    <div class="board-cell" id="cell5">
+      <div class="board-item"><div class="board-inner"></div></div>
+      <div class="board-item board-item-old"><div class="board-inner"></div></div>
+    </div>
   </div>
   <div class="board-row">
-    <div class="board-item" id="item6" accesskey="j"><div class="board-inner" id="inner6"></div></div>
-    <div class="board-item" id="item7" accesskey="k"><div class="board-inner" id="inner7"></div></div>
-    <div class="board-item" id="item8" accesskey="l"><div class="board-inner" id="inner8"></div></div>
+    <div class="board-cell" id="cell6">
+      <div class="board-item"><div class="board-inner"></div></div>
+      <div class="board-item board-item-old"><div class="board-inner"></div></div>
+    </div>
+    <div class="board-cell" id="cell7">
+      <div class="board-item"><div class="board-inner"></div></div>
+      <div class="board-item board-item-old"><div class="board-inner"></div></div>
+    </div>
+    <div class="board-cell" id="cell8">
+      <div class="board-item"><div class="board-inner"></div></div>
+      <div class="board-item board-item-old"><div class="board-inner"></div></div>
+    </div>
   </div>
 </div>
 </body>
