@@ -1,42 +1,115 @@
 @import "constant.scss";
 
-$hint-current-size: 120px;
-$hint-other-size:   80px;
+$hint-current-size: 90px;
+$hint-other-size:   60px;
+$hint-current-scale: $hint-other-size / $hint-current-size;
 $num-of-hints:         4;
 $hint-other-container-width: $hint-other-size * ($num-of-hints - 1);
 $corner-radius:      10px;
 $margin:             6px;
 
-@mixin hint($c, $ow, $oh, $m, $r) {
+/*
+# hint
+
+```
+<div class="hint-container">
+  <div class="hint-dummy"></div>
+  <div class="hint-current" style="background-color:#ffcccc;"></div>
+  <div class="hint-other" style="background-color:#ffcccc;"></div>
+  <div class="hint-other" style="background-color:#ffcccc;"></div>
+  <div class="hint-other" style="background-color:#ffcccc;"></div>
+</div>
+```
+ */
+
+@mixin hint($c, $o, $m, $r, $s) {
   .hint-container {
     display: flex;
     align-items: flex-end;
+    position: relative;
+  }
+
+  .hint-dummy {
+    position: absolute;
+    bottom: 0px;
+    left: 0px;
+    opacity: 0;
   }
 
   .hint-current {
-    float: left;
     width: $c;
     height: $c;
     margin: $m;
     border-radius: $r;
   }
 
-  .hint-other-container {
-    display: flex;
-    flex-direction: row;
-    width: $ow;
-    height: $oh;
-  }
-
   .hint-other {
-    flex: auto;
+    width: $o;
+    height: $o;
     margin: $m;
     border-radius: $r;
   }
+
+/*
+  ## animation-hint-current
+  
+  ```
+  <div style="width:100px; height:100px; border-radius:10px; background-color:#ffcccc;" onclick="(function(e,c) { e.classList.add(c); setTimeout(function(){e.classList.remove(c)}, 1000); })(this, 'animation-hint-current')"></div>
+  ```
+ */
+  
+  .animation-hint-current {
+    animation-name: animation-hint-current;
+    animation-duration: 0.5s;
+    animation-timing-function: ease;
+    animation-iteration-count: 1;
+    animation-fill-mode: forwards;
+  }
+  
+  @keyframes animation-hint-current {
+    0% {
+      transform: rotate(0deg) scale(1.0);
+      opacity: 1;
+    }
+    100% {
+      transform: rotate(-90deg) scale(0.5);
+      opacity: 0;
+    }
+  }
+
+/*
+## animation-hint-other-to-current
+
+```
+<div class="hint-container">
+  <div class="hint-current" style="background-color:#ccccff;" onclick="(function(e, c) { e.classList.add(c); setTimeout(function() { e.classList.remove(c); }, 1000); })(this, 'animation-hint-other-to-current')"></div>
+  <div class="hint-other" style="background-color:#ffcccc;"></div>
+  <div class="hint-other" style="background-color:#ffcccc;"></div>
+  <div class="hint-other" style="background-color:#ffcccc;"></div>
+</div>
+```
+ */
+  .animation-hint-other-to-current {
+    animation-name: animation-hint-other-to-current;
+    animation-duration: 0.5s;
+    animation-timing-function: ease;
+    animation-iteration-count: 1;
+    animation-fill-mode: forwards;
+  }
+  
+  @keyframes animation-hint-other-to-current {
+    0% {
+      transform: translate(($c + $o)/2 + 2*$m, ($c - $o)/2) scale($s);
+    }
+    100% {
+      transform: translate(0, 0) scale(1);
+    }
+  }
 }
 
-@include hint($hint-current-size, $hint-other-container-width, $hint-other-size, $margin, $corner-radius);
+@include hint($hint-current-size, $hint-other-size, $margin, $corner-radius, $hint-current-scale);
 @media screen and (max-width: $mobile-threshold) {
-  @include hint($hint-current-size/2, $hint-other-container-width/2, $hint-other-size/2, $margin/2, $corner-radius/2);
+  @include hint($hint-current-size/2, $hint-other-size/2, $margin/2, $corner-radius/2, $hint-current-scale);
 }
+
 
