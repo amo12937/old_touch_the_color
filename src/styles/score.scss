@@ -1,0 +1,30 @@
+@import "constant.scss";
+
+/*
+# score
+
+## animation-score-updated
+`animation-score-updated` は得点や制限時間が変動した時に使用する
+
+```
+<div id="score" style="text-align:center;">1</div>
+<button onclick="(function(e, c) { e.classList.remove(c); var t = Number(e.textContent) + 1; setTimeout(function() {e.textContent = t; e.classList.add(c)});})(document.getElementById('score'), 'animation-score-updated')">add</button>
+```
+ */
+
+.animation-score-updated {
+  animation-name: animation-score-updated;
+  animation-duration: 0.1s;
+  animation-timing-function: ease;
+  animation-iteration-count: 1;
+}
+
+@keyframes animation-score-updated {
+  0% {
+    transform: scale(1.5);
+  }
+  100% {
+    transform: scale(1.0);
+  }
+}
+
