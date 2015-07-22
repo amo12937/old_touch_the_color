@@ -200,7 +200,7 @@ onLoad = (function() {
       defaultNotificationCenter.addObserver(notificationKeys.SELECT_SUCCESS, function(i, _old, _new) {
         var newElm = itemElms[i].children[0];
         var oldElm = itemElms[i].children[1];
-        var clsPrefix = "animation-success-";
+        var clsPrefix = "animation-board-success-";
         newElm.classList.remove(clsPrefix + "new");
         oldElm.classList.remove(clsPrefix + "old");
         setTimeout(function() {
@@ -212,7 +212,7 @@ onLoad = (function() {
       });
 
       defaultNotificationCenter.addObserver(notificationKeys.SELECT_FAIL, function(i) {
-        var clsName = "animation-fail";
+        var clsName = "animation-board-fail";
         itemElms[i].classList.remove(clsName);
         setTimeout(function() {
           itemElms[i].classList.add(clsName);

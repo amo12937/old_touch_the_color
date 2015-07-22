@@ -88,3 +88,130 @@ $border-thickness: 0px;
   @include game-board($board-width/2, $board-height/2, $margin/2, $corner-radius/2, $border-thickness);
 }
 
+/*
+# animation
+
+## animation-board-fail
+`animation-board-fail` は、選択したアイテムが間違っていた場合に使用する
+
+```
+<div style="width:100px; height:100px; background-color:#ffcccc; border-radius:10px;" onclick="(function(e) { e.className='animation-board-fail'; setTimeout(function() { e.className='';}, 1000);})(this)"></div>
+```
+ */
+
+.animation-board-fail {
+  animation-name: animation-board-fail;
+  animation-duration: 0.5s;
+  animation-timing-function: ease;
+  animation-iteration-count: 1;
+}
+
+@keyframes animation-board-fail {
+  0% {
+    transform: rotate(10deg);
+  }
+  20% {
+    transform: rotate(-10deg);
+  }
+  40% {
+    transform: rotate(5deg);
+  }
+  60% {
+    transform: rotate(-5deg);
+  }
+  80% {
+    transform: rotate(0deg);
+  }
+}
+
+/*
+## animation-board-success-new
+`animation-board-success-new` は、選択したアイテムが正解だった場合、次のアイテムの出現に使われる
+
+```
+<div style="width:100px; height:100px; background-color:#ffcccc; border-radius:10px;" onclick="(function(e) { e.className='animation-board-success-new'; setTimeout(function() { e.className='';}, 1000);})(this)"></div>
+```
+ */
+
+.animation-board-success-new {
+  animation-name: animation-board-success-new;
+  animation-duration: 0.4s;
+  animation-timing-function: ease;
+  animation-iteration-count: 1;
+  animation-fill-mode: forwards;
+}
+
+@keyframes animation-board-success-new {
+  0% {
+    transform: scale(0.5);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/*
+## animation-board-success-old
+`animation-board-success-old` は、選択したアイテムが正解だった場合に使用する
+
+```
+<div style="width:100px; height:100px; background-color:#ffcccc; border-radius:10px;" onclick="(function(e) { e.className='animation-board-success-old'; setTimeout(function() { e.className='';}, 1000);})(this)"></div>
+```
+ */
+.animation-board-success-old {
+  animation-name: animation-board-success-old;
+  animation-duration: 0.4s;
+  animation-timing-function: ease;
+  animation-iteration-count: 1;
+  animation-fill-mode: forwards;
+}
+
+@keyframes animation-board-success-old {
+  0% {
+    transform: scale(1.0);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1.2);
+    opacity: 0;
+  }
+}
+
+/*
+## animation-board-first-item
+
+```
+<div class="animation-board-first-item" style="width:100px; height:100px; background-color:#ffcccc; border-radius:10px;"></div>
+```
+ */
+.animation-board-first-item {
+  animation-name: animation-board-first-item;
+  animation-duration: 1.0s;
+  animation-timing-function: ease;
+  animation-iteration-count: infinite;
+  animation-fill-mode: forwards;
+}
+
+@keyframes animation-board-first-item {
+  75% {
+    transform: rotate(0deg);
+  }
+  80% {
+    transform: rotate(5deg);
+  }
+  85% {
+    transform: rotate(-5deg);
+  }
+  90% {
+    transform: rotate(5deg);
+  }
+  95% {
+    transform: rotate(-5deg);
+  }
+  100% {
+    transform: rotate(0deg);
+  }
+}
+
