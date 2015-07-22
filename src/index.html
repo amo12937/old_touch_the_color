@@ -200,13 +200,14 @@ onLoad = (function() {
       defaultNotificationCenter.addObserver(notificationKeys.SELECT_SUCCESS, function(i, _old, _new) {
         var newElm = itemElms[i].children[0];
         var oldElm = itemElms[i].children[1];
-        var clsName = "animation-success";
-        newElm.style.backgroundColor = m.getColor(_new);
-        oldElm.style.backgroundColor = m.getColor(_old);
-        oldElm.style.opacity = 1;
-        oldElm.classList.remove(clsName);
+        var clsPrefix = "animation-success-";
+        newElm.classList.remove(clsPrefix + "new");
+        oldElm.classList.remove(clsPrefix + "old");
         setTimeout(function() {
-          oldElm.classList.add(clsName);
+          newElm.style.backgroundColor = m.getColor(_new);
+          newElm.classList.add(clsPrefix + "new");
+          oldElm.style.backgroundColor = m.getColor(_old);
+          oldElm.classList.add(clsPrefix + "old");
         });
       });
 
@@ -226,7 +227,7 @@ onLoad = (function() {
         hintElms[i].style.backgroundColor = m.getColor(items[hints[i]]);
       }
       for (i = 0, n = items.length; i < n; i++) {
-        itemElms[i].style.backgroundColor = m.getColor(items[i]);
+        itemElms[i].children[0].style.backgroundColor = m.getColor(items[i]);
       }
     };
   })(model);

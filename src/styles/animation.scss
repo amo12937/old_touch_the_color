@@ -35,24 +35,56 @@
 }
 
 /*
-## animation-success
-`animation-success` は、選択したアイテムが正解だった場合に使用する
+## animation-success-new
+`animation-success-new` は、選択したアイテムが正解だった場合、次のアイテムの出現に使われる
 
 ```
-<div style="width:100px; height:100px; background-color:#ffcccc; border-radius:10px;" onclick="(function(e) { e.className='animation-success'; setTimeout(function() { e.className='';}, 1000);})(this)"></div>
+<div style="width:100px; height:100px; background-color:#ffcccc; border-radius:10px;" onclick="(function(e) { e.className='animation-success-new'; setTimeout(function() { e.className='';}, 1000);})(this)"></div>
 ```
  */
-.animation-success {
-  animation-name: animation-success;
+
+.animation-success-new {
+  animation-name: animation-success-new;
   animation-duration: 0.4s;
   animation-timing-function: ease;
   animation-iteration-count: 1;
   animation-fill-mode: forwards;
 }
 
-@keyframes animation-success {
+@keyframes animation-success-new {
+  0% {
+    transform: scale(0.5);
+    opacity: 0;
+  }
   100% {
-    transform: rotate(-90deg) scale(0.5);
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/*
+## animation-success-old
+`animation-success-old` は、選択したアイテムが正解だった場合に使用する
+
+```
+<div style="width:100px; height:100px; background-color:#ffcccc; border-radius:10px;" onclick="(function(e) { e.className='animation-success-old'; setTimeout(function() { e.className='';}, 1000);})(this)"></div>
+```
+ */
+.animation-success-old {
+  animation-name: animation-success-old;
+  animation-duration: 0.4s;
+  animation-timing-function: ease;
+  animation-iteration-count: 1;
+  animation-fill-mode: forwards;
+}
+
+@keyframes animation-success-old {
+  0% {
+    transform: scale(1.0);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1.2);
     opacity: 0;
   }
 }
