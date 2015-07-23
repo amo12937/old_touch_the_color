@@ -65,9 +65,59 @@ onLoad = (function() {
   var defaultNotificationCenter = notificationCenterProvider();
 
   var notificationKeys = {
-    "HINT_SHIFTED": "HINT_SHIFTED",
-    "SELECT_SUCCESS": "SELECT_SUCCESS",
-    "SELECT_FAIL": "SELECT_FAIL",
+    TIMER_STARTED: "TIMER_STARTED",
+    TIMER_UPDATED: "TIMER_UPDATED",
+    TIMER_ADDED: "TIMER_ADDED",
+    TIMER_STOPPED: "TIMER_STOPPED",
+    HINT_SHIFTED: "HINT_SHIFTED",
+    SELECT_SUCCESS: "SELECT_SUCCESS",
+    SELECT_FAIL: "SELECT_FAIL",
+  };
+
+  var TimerProvider = function(nc, nKeys, msec, maxMSec, interval) {
+    var stopped = true;
+    var startedTime = 0;
+    var stoppedTime = 0;
+    var f = function() {
+      if (stopped) return;
+      var currentTime = Date.now();
+      var dt = Math.max(0, stoppedTime - currentTime);
+      nc.notify(nKeys.TIMER_UPDATED, dt);
+      if (dt <= 0) {
+        stopped = true;
+        nc.notify(notificationKeys.TIMER_STOPPED);
+        return;
+      }
+
+      var timeToCall = dt - interval * Math.ceil(dt / interval - 1);
+      setTimeout(f, timeToCall);
+    };
+    var self = {
+      start: function() {
+        if (!stopped) return;
+        stopped = false;
+        startedTime = Date.now();
+        stoppedTime = startedTime + Math.min(msec, maxMSec);
+        nc.notify(nKeys.TIMER_STARTED, stoppedTime - startedTime);
+        setTimeout(f, interval);
+      },
+      add: function(ms) {
+        if (stopped) return;
+        var currentTime = Date.now();
+        var old = stoppedTime;
+        stoppedTime = Math.min(stoppedTime + ms, currentTime + maxMSec);
+        var dt = Math.max(0, stoppedTime - currentTime);
+        nc.notify(nKeys.TIMER_ADDED, Math.max(0, old - currentTime), dt);
+        if (0 < dt) return;
+        stopped = true;
+        nc.notify(nKeys.TIMER_STOPPED);
+      },
+      get: function() {
+        if (stopped) return msec;
+        return stoppedTime - Date.now();
+      }
+    };
+    return self;
   };
 
   var hintProvider = function(n, m) {
@@ -120,6 +170,7 @@ onLoad = (function() {
   };
 
   var model = (function(n, m) {
+    var timer = TimerProvider(defaultNotificationCenter, notificationKeys, 3000, 3000, 23);
     var itemContainer = itemContainerProvider(n, n);
     var hint = hintProvider(n, m);
     var colors = [
@@ -146,9 +197,12 @@ onLoad = (function() {
     var self = {
       "select": function(i) {
         if (!hint.try(i)) {
+          timer.add(-1000);
           defaultNotificationCenter.notify(notificationKeys.SELECT_FAIL, i);
           return;
         }
+        timer.start();
+        timer.add(100);
         itemContainer.select(i);
         hint.shift();
       },
@@ -177,7 +231,7 @@ onLoad = (function() {
         return items[i];
       }
     };
-    return function(hintDummy, hintElms, itemElms) {
+    return function(hintDummy, hintElms, itemElms, timerElm) {
       defaultNotificationCenter.addObserver(notificationKeys.HINT_SHIFTED, function(hints) {
         var i, n, items = m.getItemContainer();
         var clsPrefix = "animation-hint-";
@@ -219,6 +273,27 @@ onLoad = (function() {
         });
       });
 
+      defaultNotificationCenter.addObserver(notificationKeys.TIMER_STARTED, function(msec) {
+        timerElm.textContent = msec / 1000;
+      });
+
+      defaultNotificationCenter.addObserver(notificationKeys.TIMER_UPDATED, function(msec) {
+        timerElm.textContent = msec / 1000;
+      });
+
+      defaultNotificationCenter.addObserver(notificationKeys.TIMER_ADDED, function(_old, _new) {
+        var clsName = "animation-score-updated";
+        timerElm.classList.remove(clsName);
+        setTimeout(function() {
+          timerElm.textContent = _new / 1000;
+          timerElm.classList.add(clsName);
+        });
+      });
+
+      defaultNotificationCenter.addObserver(notificationKeys.TIMER_STOPPED, function() {
+        timerElm.textContent = 0;
+      });
+
       var hints = m.getHint();
       var items = m.getItemContainer();
 
@@ -248,7 +323,8 @@ onLoad = (function() {
       })(i);
       itemElms.push(elm);
     }
-    view(hintDummy, hintElms, itemElms);
+    var timerElm = d.getElementById("timer");
+    view(hintDummy, hintElms, itemElms, timerElm);
   };
 
   return onLoad
@@ -257,6 +333,7 @@ onLoad = (function() {
 </script>
 </head>
 <body onload="onLoad(window, document)">
+<div id="timer">0</div>
 <div class="hint-container">
   <div class="hint-dummy"></div>
   <div class="hint-current"></div>
