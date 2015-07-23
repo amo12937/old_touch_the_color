@@ -66,6 +66,8 @@ onLoad = (function() {
 
   var notificationKeys = {
     GAME_READY_TO_START: "GAME_READY_TO_START",
+    SCORE_CHANGED: "SCORE_CHANGED",
+    HISCORE_CHANGED: "HISCORE_CHANGED",
     TIMER_STARTED: "TIMER_STARTED",
     TIMER_UPDATED: "TIMER_UPDATED",
     TIMER_ADDED: "TIMER_ADDED",
@@ -170,8 +172,28 @@ onLoad = (function() {
     return self;
   };
 
+  var ScoreManagerProvider = function(nc, nKeys, hi) {
+    var score = 0;
+    var self = {
+      increment: function () {
+        score += 1;
+        if (hi < score) {
+          hi = score
+          nc.notify(nKeys.HISCORE_CHANGED, hi);
+        }
+        nc.notify(nKeys.SCORE_CHANGED, score);
+      },
+      reset: function() {
+        score = 0;
+        nc.notify(nKeys.SCORE_CHANGED, score);
+      },
+    };
+    return self;
+  };
+
   var model = (function(n, m) {
-    var timer = TimerProvider(defaultNotificationCenter, notificationKeys, 3000, 3000, 23);
+    var scoreManager = ScoreManagerProvider(defaultNotificationCenter, notificationKeys, 0);
+    var timer = TimerProvider(defaultNotificationCenter, notificationKeys, 5000, 5000, 130);
     var itemContainer = itemContainerProvider(n, n);
     var hint = hintProvider(n, m);
     var colors = [
@@ -203,7 +225,7 @@ onLoad = (function() {
     var self = {
       "select": function(i) {
         if (gameover || !hint.try(i)) {
-          timer.add(-1000);
+          timer.add(-1500);
           defaultNotificationCenter.notify(notificationKeys.SELECT_FAIL, i);
           return;
         }
@@ -211,10 +233,12 @@ onLoad = (function() {
         timer.add(1000);
         itemContainer.select(i);
         hint.shift();
+        scoreManager.increment();
       },
       "restart": function() {
         if (!gameover) return;
         gameover = false;
+        scoreManager.reset();
         defaultNotificationCenter.notify(notificationKeys.GAME_READY_TO_START);
       },
       "getItemContainer": function() {
@@ -236,11 +260,22 @@ onLoad = (function() {
         return items[i];
       }
     };
-    return function(hintDummy, hintElms, itemElms, timerElm, restartElm) {
+    return function(hintDummy, hintElms, itemElms, timerElm, scoreElm, hiscoreElm, restartElm) {
       defaultNotificationCenter.addObserver(notificationKeys.GAME_READY_TO_START, function() {
         restartElm.style.opacity = 0;
         var hints = m.getHint();
         itemElms[hints[0]].classList.add("animation-board-first-item");
+      });
+      defaultNotificationCenter.addObserver(notificationKeys.SCORE_CHANGED, function(s) {
+        scoreElm.textContent = s;
+      });
+      defaultNotificationCenter.addObserver(notificationKeys.HISCORE_CHANGED, function(h) {
+        var clsName = "animation-score-updated";
+        hiscoreElm.classList.remove(clsName);
+        setTimeout(function() {
+          hiscoreElm.textContent = h;
+          hiscoreElm.classList.add(clsName);
+        });
       });
       defaultNotificationCenter.addObserver(notificationKeys.HINT_SHIFTED, function(hints) {
         var i, n, items = m.getItemContainer();
@@ -341,11 +376,13 @@ onLoad = (function() {
         itemElms.push(elm);
       }
       var timerElm = d.getElementById("timer");
+      var scoreElm = d.getElementById("score");
+      var hiscoreElm = d.getElementById("hiscore");
       var restartElm = d.getElementById("restart");
       restartElm.onclick = function() {
         m.restart();
       };
-      view(hintDummy, hintElms, itemElms, timerElm, restartElm);
+      view(hintDummy, hintElms, itemElms, timerElm, scoreElm, hiscoreElm, restartElm);
     };
   })(model);
 
@@ -355,6 +392,8 @@ onLoad = (function() {
 </script>
 </head>
 <body onload="onLoad(window, document)">
+<div style="text-align:center" id="hiscore">0</div>
+<div style="text-align:center" id="score">0</div>
 <div style="text-align:center" id="timer">0</div>
 <div class="hint-container">
   <div class="hint-dummy"></div>
