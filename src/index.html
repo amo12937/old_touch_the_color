@@ -65,6 +65,7 @@ onLoad = (function() {
   var defaultNotificationCenter = notificationCenterProvider();
 
   var notificationKeys = {
+    GAME_READY_TO_START: "GAME_READY_TO_START",
     TIMER_STARTED: "TIMER_STARTED",
     TIMER_UPDATED: "TIMER_UPDATED",
     TIMER_ADDED: "TIMER_ADDED",
@@ -194,17 +195,27 @@ onLoad = (function() {
       "#666666",
     ];
 
+    var gameover = false;
+    defaultNotificationCenter.addObserver(notificationKeys.TIMER_STOPPED, function() {
+      gameover = true;
+    });
+
     var self = {
       "select": function(i) {
-        if (!hint.try(i)) {
+        if (gameover || !hint.try(i)) {
           timer.add(-1000);
           defaultNotificationCenter.notify(notificationKeys.SELECT_FAIL, i);
           return;
         }
         timer.start();
-        timer.add(100);
+        timer.add(1000);
         itemContainer.select(i);
         hint.shift();
+      },
+      "restart": function() {
+        if (!gameover) return;
+        gameover = false;
+        defaultNotificationCenter.notify(notificationKeys.GAME_READY_TO_START);
       },
       "getItemContainer": function() {
         return itemContainer.get();
@@ -219,19 +230,18 @@ onLoad = (function() {
     return self;
   })(NUM_OF_ITEMS, NUM_OF_HINTS);
 
-  var controller = (function(m) {
-    return function(i) {
-      m.select(i);
-    };
-  })(model);
-
   var view = (function(m) {
     var hintMapper = function(items) {
       return function(i) {
         return items[i];
       }
     };
-    return function(hintDummy, hintElms, itemElms, timerElm) {
+    return function(hintDummy, hintElms, itemElms, timerElm, restartElm) {
+      defaultNotificationCenter.addObserver(notificationKeys.GAME_READY_TO_START, function() {
+        restartElm.style.opacity = 0;
+        var hints = m.getHint();
+        itemElms[hints[0]].classList.add("animation-board-first-item");
+      });
       defaultNotificationCenter.addObserver(notificationKeys.HINT_SHIFTED, function(hints) {
         var i, n, items = m.getItemContainer();
         var clsPrefix = "animation-hint-";
@@ -274,6 +284,8 @@ onLoad = (function() {
       });
 
       defaultNotificationCenter.addObserver(notificationKeys.TIMER_STARTED, function(msec) {
+        var hints = m.getHint();
+        itemElms[hints[0]].classList.remove("animation-board-first-item");
         timerElm.textContent = msec / 1000;
       });
 
@@ -292,6 +304,7 @@ onLoad = (function() {
 
       defaultNotificationCenter.addObserver(notificationKeys.TIMER_STOPPED, function() {
         timerElm.textContent = 0;
+        restartElm.style.opacity = 1;
       });
 
       var hints = m.getHint();
@@ -301,31 +314,40 @@ onLoad = (function() {
       for (i = 0, n = hints.length; i < n; i++) {
         hintElms[i].style.backgroundColor = m.getColor(items[hints[i]]);
       }
+      itemElms[hints[0]].classList.add("animation-board-first-item");
       for (i = 0, n = items.length; i < n; i++) {
         itemElms[i].children[0].style.backgroundColor = m.getColor(items[i]);
       }
+
+      restartElm.style.opacity = 0;
     };
   })(model);
 
-  var onLoad = function(w, d) {
-    var touchable = w.ontouchstart !== undefined;
+  var onLoad = (function(m) {
+    return function(w, d) {
+      var touchable = w.ontouchstart !== undefined;
 
-    var hintContainer = d.querySelector(".hint-container");
-    var hintDummy = hintContainer.children[0];
-    var hintElms = [].slice.call(hintContainer.children, 1);
-    var i = 0, itemElms = [];
-    for (i = 0; i < NUM_OF_ITEMS; i++) {
-      var elm = d.getElementById("cell" + i);
-      elm[touchable ? "ontouchstart" : "onclick"] = (function(j) {
-        return function() {
-          controller(j);
-        };
-      })(i);
-      itemElms.push(elm);
-    }
-    var timerElm = d.getElementById("timer");
-    view(hintDummy, hintElms, itemElms, timerElm);
-  };
+      var hintContainer = d.querySelector(".hint-container");
+      var hintDummy = hintContainer.children[0];
+      var hintElms = [].slice.call(hintContainer.children, 1);
+      var i = 0, itemElms = [];
+      for (i = 0; i < NUM_OF_ITEMS; i++) {
+        var elm = d.getElementById("cell" + i);
+        elm[touchable ? "ontouchstart" : "onclick"] = (function(j) {
+          return function() {
+            m.select(j);
+          };
+        })(i);
+        itemElms.push(elm);
+      }
+      var timerElm = d.getElementById("timer");
+      var restartElm = d.getElementById("restart");
+      restartElm.onclick = function() {
+        m.restart();
+      };
+      view(hintDummy, hintElms, itemElms, timerElm, restartElm);
+    };
+  })(model);
 
   return onLoad
 })();
@@ -333,7 +355,7 @@ onLoad = (function() {
 </script>
 </head>
 <body onload="onLoad(window, document)">
-<div id="timer">0</div>
+<div style="text-align:center" id="timer">0</div>
 <div class="hint-container">
   <div class="hint-dummy"></div>
   <div class="hint-current"></div>
@@ -385,6 +407,9 @@ onLoad = (function() {
       <div class="board-item board-item-old"><div class="board-inner"></div></div>
     </div>
   </div>
+</div>
+<div>
+<div id="restart" style="background-color:#cccccc;width=120px;height:40px;border-radius:5px;text-align:center;line-height:40px;">restart</div>
 </div>
 </body>
 </html>
