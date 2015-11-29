@@ -7,7 +7,7 @@
     "styles": "gulp styles",
     "styleguide": "gulp styleguide",
     "htmls": "gulp htmls",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "env NODE_PATH=src/scripts mocha --compilers coffee:coffee-script/register --recursive spec/ -R dot"
   },
   "repository": {
     "type": "git",
@@ -20,12 +20,17 @@
   },
   "homepage": "https://github.com/amo12937/touch_the_color#readme",
   "devDependencies": {
+    "amo.modules.simple_publisher": "^1.1.1",
+    "chai": "^3.4.1",
     "coffee-script": "^1.9.3",
     "gulp": "^3.9.0",
     "gulp-autoprefixer": "^2.3.1",
     "gulp-coffee": "^2.3.1",
     "gulp-sass": "^2.0.4",
     "gulp-styledocco": "0.0.3",
+    "mocha": "^2.3.4",
+    "sinon": "^1.17.2",
+    "sinon-chai": "^2.8.0",
     "styledocco": "^0.6.6"
   }
 }
