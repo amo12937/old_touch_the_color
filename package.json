@@ -20,6 +20,7 @@
   },
   "homepage": "https://github.com/amo12937/touch_the_color#readme",
   "devDependencies": {
+    "amo.modules.observable_value": "^1.1.2",
     "amo.modules.simple_publisher": "^1.1.1",
     "chai": "^3.4.1",
     "coffee-script": "^1.9.3",
